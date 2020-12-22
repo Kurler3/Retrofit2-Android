@@ -31,8 +31,13 @@ public class MainActivity extends AppCompatActivity {
         // Retrofit will handle the code for the function of getting all the posts
         jsonPlaceHolderApi = retrofit.create(JsonPlaceHolderApi.class);
 
-         getPosts(3, "id", "desc");
+        // -----------------------------------------------------------------------------------------
+        // User API
+         //getPosts(3, "id", "desc");
         //getComments(3);
+        Post post = new Post(23, "Example Title", "Example description");
+        createPost(post);
+        //------------------------------------------------------------------------------------------
     }
     private void getComments(int postId){
         Call<List<Comment>> commentList = jsonPlaceHolderApi.getComments(postId);
@@ -98,5 +103,36 @@ public class MainActivity extends AppCompatActivity {
                 mTextView.setText(t.getMessage());
             }
         });
+    }
+    private void createPost(Post post){
+        Call<Post> call = jsonPlaceHolderApi.createPost(post);
+
+        call.enqueue(new Callback<Post>() {
+            @Override
+            public void onResponse(Call<Post> call, Response<Post> response) {
+                if (!response.isSuccessful()) {
+                    mTextView.setText("Code: " + response.code());
+                    return;
+                }
+
+                //If the response was successful then get the data
+                Post post = response.body();
+
+                String content = "";
+                content += "Code: " + response.code() + "\n";
+                content += "Post ID: " + post.getPostId() + "\n";
+                content += "User ID: " + post.getUserId() + "\n";
+                content += "Title: " + post.getTitle() + "\n";
+                content += "Post: " + post.getDescription() + "\n\n";
+
+                mTextView.append(content);
+            }
+
+            @Override
+            public void onFailure(Call<Post> call, Throwable t) {
+                mTextView.setText(t.getMessage());
+            }
+        });
+
     }
 }
