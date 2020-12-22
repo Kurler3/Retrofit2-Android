@@ -15,6 +15,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
    TextView mTextView;
+    JsonPlaceHolderApi jsonPlaceHolderApi;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,9 +29,42 @@ public class MainActivity extends AppCompatActivity {
                 .build();
 
         // Retrofit will handle the code for the function of getting all the posts
-        JsonPlaceHolderApi jsonPlaceHolderApi = retrofit.create(JsonPlaceHolderApi.class);
+        jsonPlaceHolderApi = retrofit.create(JsonPlaceHolderApi.class);
 
-        Call<List<Post>> call = jsonPlaceHolderApi.getPosts();
+         getPosts(3, "id", "desc");
+        //getComments(3);
+    }
+    private void getComments(int postId){
+        Call<List<Comment>> commentList = jsonPlaceHolderApi.getComments(postId);
+
+        commentList.enqueue(new Callback<List<Comment>>() {
+            @Override
+            public void onResponse(Call<List<Comment>> call, Response<List<Comment>> response) {
+                if(!response.isSuccessful()){
+                    mTextView.setText("Code: " + response.code());
+                }
+
+                List<Comment> comments = response.body();
+
+                for(Comment comment : comments){
+                    String content = "";
+                    content += "Comment ID: " + comment.getCommentId() + "\n";
+                    content += "Post ID: " + comment.getPostId() + "\n";
+                    content += "Email: " + comment.getEmail() + "\n";
+                    content += "Title: " + comment.getTitle() + "\n";
+                    content += "Text: " + comment.getText() + "\n\n";
+
+                    mTextView.append(content);
+                }
+            }
+            @Override
+            public void onFailure(Call<List<Comment>> call, Throwable t) {
+                 mTextView.setText(t.getMessage());
+            }
+        });
+    }
+    private void getPosts(int userId, String sortBy, String order){
+        Call<List<Post>> call = jsonPlaceHolderApi.getPosts(userId, sortBy, order);
 
         // Calls for data in a different thread (handled by retrofit again)
         call.enqueue(new Callback<List<Post>>() {
