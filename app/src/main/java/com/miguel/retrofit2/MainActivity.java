@@ -28,15 +28,18 @@ public class MainActivity extends AppCompatActivity {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
-        // Retrofit will handle the code for the function of getting all the posts
+        // Retrofit will handle the code for all the functions in this interface
         jsonPlaceHolderApi = retrofit.create(JsonPlaceHolderApi.class);
 
         // -----------------------------------------------------------------------------------------
         // User API
-         //getPosts(3, "id", "desc");
+        //getPosts(3, "id", "desc");
         //getComments(3);
         Post post = new Post(23, "Example Title", "Example description");
-        createPost(post);
+        //createPost(post);
+        //putPost(2, post);
+        //patchPost(2, post);
+        deletePost(1);
         //------------------------------------------------------------------------------------------
     }
     private void getComments(int postId){
@@ -134,5 +137,78 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+    }
+    private void putPost(int postId, Post post){
+        Call<Post> call = jsonPlaceHolderApi.putPost(postId, post);
+
+        call.enqueue(new Callback<Post>() {
+            @Override
+            public void onResponse(Call<Post> call, Response<Post> response) {
+                if(!response.isSuccessful()){
+                    mTextView.setText("Code: " + response.code());
+                    return;
+                }
+
+                Post postBack = response.body();
+
+                String content = "";
+                content += "Code: " + response.code() + "\n";
+                content += "Post ID: " + postBack.getPostId() + "\n";
+                content += "User ID: " + postBack.getUserId() + "\n";
+                content += "Title: " + postBack.getTitle() + "\n";
+                content += "Post: " + postBack.getDescription() + "\n\n";
+
+                mTextView.append(content);
+            }
+
+            @Override
+            public void onFailure(Call<Post> call, Throwable t) {
+                mTextView.setText(t.getMessage());
+            }
+        });
+    }
+    private void patchPost(int postId, Post post){
+        Call<Post> call = jsonPlaceHolderApi.putPost(postId, post);
+
+        call.enqueue(new Callback<Post>() {
+            @Override
+            public void onResponse(Call<Post> call, Response<Post> response) {
+                if(!response.isSuccessful()){
+                    mTextView.setText("Code: " + response.code());
+                    return;
+                }
+
+                Post postBack = response.body();
+
+                String content = "";
+                content += "Code: " + response.code() + "\n";
+                content += "Post ID: " + postBack.getPostId() + "\n";
+                content += "User ID: " + postBack.getUserId() + "\n";
+                content += "Title: " + postBack.getTitle() + "\n";
+                content += "Post: " + postBack.getDescription() + "\n\n";
+
+                mTextView.append(content);
+            }
+
+            @Override
+            public void onFailure(Call<Post> call, Throwable t) {
+                mTextView.setText(t.getMessage());
+            }
+        });
+    }
+    private void deletePost(int postId){
+        Call<Void> call = jsonPlaceHolderApi.deletePost(postId);
+
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                mTextView.setText("Code: " + response.code());
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t){
+                mTextView.setText(t.getMessage());
+            }
+        });
     }
 }
